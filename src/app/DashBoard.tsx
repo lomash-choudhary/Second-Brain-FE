@@ -8,10 +8,9 @@ import { Card } from "../components/Card";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Modal from "../components/Modal";
-import ShareBrainModal from "../components/ShareBrain";
 
 export function DashBoard() {
-  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing }: any = useContext(CreateContext);
+  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing,hash, setHash }: any = useContext(CreateContext);
     console.log(isModalOpen)
     useEffect(() => {
         const toastId = toast.loading("Loading the Users Data")
@@ -29,13 +28,21 @@ export function DashBoard() {
             toast.success("Data Loaded Successfully",{id:toastId});
         } catch (error:any) {
             setError(error.message)
-            toast.error(error.response.data, {id:toastId})
+            toast.error('Error occured while loading the data', {id:toastId})
         }
         finally{
           setLoading(false)
         }
     }
     datacall()
+    },[])
+
+
+    useEffect(() => {
+      let sharingState = localStorage.getItem("sharing")
+      if(sharingState !== null){
+        setIsSharing(JSON.parse(sharingState))
+      }
     },[])
 
     const deleteContent = async (_id:any) => {
@@ -72,16 +79,17 @@ export function DashBoard() {
           _id:item._id
         })
       }
-
-
       const shareYourBrain = async () => {
-        const toastId = toast.loading('Sharing Your Brain');
+        let newUpdatedState = !isSharing;
+        setIsSharing(newUpdatedState);
+        localStorage.setItem('sharing', JSON.stringify(newUpdatedState))
+        const toastId = toast.loading(`${isSharing ? 'Stoping Your Brain From being shared': 'Sharing Your Brain'}`);
         const token = localStorage.getItem('userAuthToken')
         try {
           setLoading(true);
           const response = await axios.post('http://localhost:3000/api/v1/brain/share',
             {
-              share: isSharing ? false : true
+              share: isSharing !== true ? true : false
             },
             {
               headers:{
@@ -89,16 +97,31 @@ export function DashBoard() {
               }
             }
           )
-          console.log(response.data)
+          console.log(response.data.link)
+          setHash(isSharing ? "":response.data.link)
           setLoading(false);
-          toast.success("Successfully Shared Your Brain",{id:toastId})
+          toast.success(`${isSharing ? 'Successfully Brain Sharing Stopped':'Successfully Shared Your Brain'}`,{id:toastId})
         } catch (error:any) {
           setError(error.response.data)
           setLoading(false)
-          toast.error("Error Occured while Sharing the brain",{id:toastId})
+          toast.error(`${isSharing ? 'Error occured while stopping the brain sharing':'Error occured while sharing the brain'}`,{id:toastId})
         }
         finally{
           setLoading(false)
+        }
+      }
+
+
+      const fetchSharedBrain = async () => {
+        const toastId = toast.loading('Loading the shared brain');
+        try{  
+          const response = await axios.get(`http://localhost:3000/api/v1/brain/${hash}`);
+          setData(response.data.content)
+          console.log(response.data.content);
+          console.log(data);
+        }catch(err){
+          setLoading(false);
+          toast.error('Error occured while loading the shared brain data',{id:toastId})
         }
       }
   return (
@@ -128,10 +151,10 @@ export function DashBoard() {
               <div className="flex gap-4 justify-end ">
                 <Button
                   variant="secondary"
-                  text={isSharing ? "Stop Sharing" : "Share Brain"}
+                  text={isSharing === true ? "Stop Sharing" : "Share Brain"}
                   startIcon={<IoShareSocialOutline className="text-2xl" />}
                   className="w-44"
-                  onClick={shareYourBrain}
+                  onClick={() => shareYourBrain()}
                   isDisabled={loading ? true : false}
                 />
                 <Button
@@ -151,6 +174,7 @@ export function DashBoard() {
         </div>
         </div>
       </div>
+      <button onClick={fetchSharedBrain}>Click me</button>
     </div>
   );
 }

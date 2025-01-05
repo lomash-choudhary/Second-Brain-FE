@@ -18,8 +18,9 @@ export function ContextProvider({children}:any){
     })
     const [isEditing, setIsEditing] = useState(false)
     const [isSharing, setIsSharing] = useState(false);
+    const [hash, setHash] = useState("");
     return(
-        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing}}>
+        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing, hash, setHash}}>
             {children}
         </CreateContext.Provider>
     )
