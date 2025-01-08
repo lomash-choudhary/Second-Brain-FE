@@ -17,6 +17,7 @@ function App() {
             <Route path="/signup" element={<SignUpAndLogin />} />
             <Route path="/login" element={<SignUpAndLogin />} />
             <Route path="/dashboard" element={<DashBoard />} />
+            <Route path="/brain/share/:shareId" element={<DashBoard />} />
             <Route path="*" element={<InvalidRoute />} />
           </Routes>
         </BrowserRouter>

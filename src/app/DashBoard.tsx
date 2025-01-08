@@ -8,22 +8,33 @@ import { Card } from "../components/Card";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Modal from "../components/Modal";
+import { useParams } from "react-router-dom";
 
 export function DashBoard() {
-  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing,hash, setHash }: any = useContext(CreateContext);
-    console.log(isModalOpen)
+  const { shareId } = useParams()
+  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing, setHash}: any = useContext(CreateContext);
+  const isSharedBrain = !!shareId
     useEffect(() => {
-        const toastId = toast.loading("Loading the Users Data")
+        const toastId = toast.loading(isSharedBrain ? 'Loading Shared Brain Data': 'Loading the Users Data')
         const datacall = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("http://localhost:3000/api/v1/content",{
-                headers:{
-                    authorization:localStorage.getItem("userAuthToken")
-                }
-            })
-            console.log(response.data.userContentData);
-            setData(response.data.userContentData)
+            if(isSharedBrain){
+              const response = await axios.get(`http://localhost:3000/api/v1/brain/${shareId}`)
+              // if(!response){
+              //   toast.error('This brain does not exists publicaly',{id:toastId});
+              // }
+              setData(response.data.content)
+            }
+            else{
+              const response = await axios.get("http://localhost:3000/api/v1/content",{
+                  headers:{
+                      authorization:localStorage.getItem("userAuthToken")
+                  }
+              })
+              console.log('user content data',response.data.userContentData);
+              setData(response.data.userContentData)
+            }
             setLoading(false);
             toast.success("Data Loaded Successfully",{id:toastId});
         } catch (error:any) {
@@ -35,7 +46,7 @@ export function DashBoard() {
         }
     }
     datacall()
-    },[])
+    },[shareId, isSharedBrain])
 
 
     useEffect(() => {
@@ -50,18 +61,16 @@ export function DashBoard() {
       try{
         setLoading(true);
         const token = localStorage.getItem("userAuthToken")
-        const response = await axios.delete(`http://localhost:3000/api/v1/content/${_id}`,{
+        await axios.delete(`http://localhost:3000/api/v1/content/${_id}`,{
           headers:{
             Authorization: token ? token : ""
           }
         })
         setLoading(false)
-        console.log(response)
         toast.success("Content Deleted Successfully", {id:toastId})
         window.location.reload()
 
       }catch(error:any){
-        console.log(error.response.data)
         toast.error(error.response.data,{id:toastId})
       }
       finally{
@@ -97,8 +106,11 @@ export function DashBoard() {
               }
             }
           )
-          console.log(response.data.link)
           setHash(isSharing ? "":response.data.link)
+          if(!isSharing){
+            const shareUrl = `${window.location.origin}/brain/share/${response.data.link}`
+            window.open(`${shareUrl}`, '_blank')
+          }
           setLoading(false);
           toast.success(`${isSharing ? 'Successfully Brain Sharing Stopped':'Successfully Shared Your Brain'}`,{id:toastId})
         } catch (error:any) {
@@ -108,20 +120,6 @@ export function DashBoard() {
         }
         finally{
           setLoading(false)
-        }
-      }
-
-
-      const fetchSharedBrain = async () => {
-        const toastId = toast.loading('Loading the shared brain');
-        try{  
-          const response = await axios.get(`http://localhost:3000/api/v1/brain/${hash}`);
-          setData(response.data.content)
-          console.log(response.data.content);
-          console.log(data);
-        }catch(err){
-          setLoading(false);
-          toast.error('Error occured while loading the shared brain data',{id:toastId})
         }
       }
   return (
@@ -149,14 +147,14 @@ export function DashBoard() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-4xl font-bold">All Notes</div>
               <div className="flex gap-4 justify-end ">
-                <Button
+                {!isSharedBrain && (<Button
                   variant="secondary"
                   text={isSharing === true ? "Stop Sharing" : "Share Brain"}
                   startIcon={<IoShareSocialOutline className="text-2xl" />}
                   className="w-44"
                   onClick={() => shareYourBrain()}
                   isDisabled={loading ? true : false}
-                />
+                />)}
                 <Button
                   variant="primary"
                   text="Add Content"
@@ -174,7 +172,6 @@ export function DashBoard() {
         </div>
         </div>
       </div>
-      <button onClick={fetchSharedBrain}>Click me</button>
     </div>
   );
 }
