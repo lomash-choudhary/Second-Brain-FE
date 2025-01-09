@@ -9,10 +9,11 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Modal from "../components/Modal";
 import { useParams } from "react-router-dom";
+import { CiSearch } from "react-icons/ci";
 
 export function DashBoard() {
   const { shareId } = useParams()
-  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing, setHash}: any = useContext(CreateContext);
+  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing, setHash, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef}: any = useContext(CreateContext);
   const isSharedBrain = !!shareId
     useEffect(() => {
         const toastId = toast.loading(isSharedBrain ? 'Loading Shared Brain Data': 'Loading the Users Data')
@@ -56,6 +57,16 @@ export function DashBoard() {
       }
     },[])
 
+    useEffect(() => {
+      if(searchQuery){
+        const result = data.filter((item:any) => item.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+        setFilteredData(result)
+      }
+      else{
+        setFilteredData(data);
+      }
+    },[searchQuery, data])
+
     const deleteContent = async (_id:any) => {
       const toastId = toast.loading("Deleting the Selected Content");
       try{
@@ -88,6 +99,17 @@ export function DashBoard() {
           _id:item._id
         })
       }
+
+      const filterAccordingToPlatform = (query:string) => {
+        if(query){
+          const result = data.filter((item:any) => item?.type.toLowerCase() === query.toLowerCase())
+          setFilteredData(result)
+        }
+        else{
+          setFilteredData(data)
+        }
+      }
+
       const shareYourBrain = async () => {
         let newUpdatedState = !isSharing;
         setIsSharing(newUpdatedState);
@@ -122,6 +144,10 @@ export function DashBoard() {
           setLoading(false)
         }
       }
+
+      const focusoOnInputBox = () => {
+        inputRef.current?.focus()
+      }
   return (
     <div className="flex min-h-screen">
       <div
@@ -129,9 +155,10 @@ export function DashBoard() {
           isOpen ? "w-64" : "w-12"
         }`}
       >
+        
         {isModalOpen && <Modal />}
         {isOpen ? (
-          <SideBar />
+          <SideBar onClick={filterAccordingToPlatform}/>
         ) : (
           <TbLayoutSidebarRightCollapseFilled
             onClick={() => setIsOpen(!isOpen)}
@@ -146,6 +173,7 @@ export function DashBoard() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-4xl font-bold">All Notes</div>
+              
               <div className="flex gap-4 justify-end ">
                 {!isSharedBrain && (<Button
                   variant="secondary"
@@ -165,8 +193,18 @@ export function DashBoard() {
               </div>
             </div>
           </div>
+          <div className="relative flex items-center max-w-sm">
+            <CiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-2xl" onClick={focusoOnInputBox}/>
+            <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Enter the title to search"
+            className="w-full pl-10 pr-4 py-2 bg-slate-100 border-2 border-gray-300 rounded-lg text-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            ref={inputRef}
+            />
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 mt-10 gap-8">
-            {data.map((item:any) => (
+            {filteredData.map((item:any) => (
                 <Card title={item.title} type={item.type} link={item.link} _id={item._id} onDelete={deleteContent} key={item._id} onEdit={() => editContent(item)} />
             ))}
         </div>
