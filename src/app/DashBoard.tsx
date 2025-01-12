@@ -193,7 +193,7 @@ export function DashBoard() {
               </div>
             </div>
           </div>
-          <div className="relative flex items-center max-w-sm">
+          <div className="relative flex items-center max-w-sm mt-4">
             <CiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-2xl" onClick={focusoOnInputBox}/>
             <input
             value={searchQuery}

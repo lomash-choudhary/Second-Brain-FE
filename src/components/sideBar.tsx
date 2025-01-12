@@ -20,7 +20,7 @@ export function SideBar({ onClick }:SidebarProps){
             <div className="flex justify-end text-2xl" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen && <TbLayoutSidebarRightExpandFilled className="hover:cursor-pointer"/> }
             </div>
-            <div className="flex gap-4 items-center text-3xl px-4 py-1 mb-4 hover:cursor-pointer" onClick={() => navigate('/dashboard')}>
+            <div className="flex gap-4 items-center text-3xl px-4 py-1 mb-4 hover:cursor-pointer text-[#5046e4]" onClick={() => navigate('/dashboard')}>
                 <FaBrain />
                 <p className="font-semibold">Second Brain</p>
             </div>

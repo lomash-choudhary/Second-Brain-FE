@@ -6,7 +6,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 export default function Modal () {
-    const {loading, setLoading, error, setError, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing}:any = useContext(CreateContext)
+    const {loading, setLoading, setError, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing}:any = useContext(CreateContext)
 
     const handlerFn = async () => {
         const toastId = toast.loading(`${isEditing ? "Updating the Content":"Adding Content"}`);
