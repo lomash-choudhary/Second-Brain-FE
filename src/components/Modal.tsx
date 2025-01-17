@@ -6,13 +6,20 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 export default function Modal () {
-    const {loading, setLoading, setError, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing}:any = useContext(CreateContext)
+    const {loading, setLoading, setError, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, document, setDocument}:any = useContext(CreateContext)
+    const formData = new FormData();
+    formData.append('uploadImage', document)
 
     const handlerFn = async () => {
         const toastId = toast.loading(`${isEditing ? "Updating the Content":"Adding Content"}`);
         let response;
         try{
             console.log(contentData)
+            if(contentData.type === 'Documents'){
+                response = await axios.post(`http://localhost:3000/api/v1/upload`, formData)
+                console.log(response);
+            }
+            else{
             const token = localStorage.getItem("userAuthToken");
             setLoading(true)
             if(isEditing){
@@ -42,7 +49,8 @@ export default function Modal () {
                     }
                 }
             )
-        }
+            }
+            }
             console.log(response)
             setContentData({
                 title:"",
@@ -87,13 +95,6 @@ export default function Modal () {
                         className="px-4 py-2 bg-slate-100 border-2 rounded-lg text-lg"
                         placeholder="Elon Tweet"
                     />  
-                    <label className="font-semibold text-xl">Link</label>
-                    <input 
-                        value={contentData.link}
-                        onChange={(e) => setContentData({...contentData, link:e.target.value})}
-                        className="px-4 py-2 bg-slate-100 border-2 rounded-lg text-lg"
-                        placeholder="x.com"
-                    />
                     <label className="font-semibold text-xl">Platform</label>
                     <select 
                         className="px-4 py-2 bg-slate-100 border-2 rounded-lg text-lg"
@@ -106,6 +107,15 @@ export default function Modal () {
                         <option value={"Documents"}>Documents</option>
                         <option value={"Links"}>Other Links</option>
                     </select>
+                    <label className="font-semibold text-xl">{contentData.type === 'Documents' ? "Upload Document": "Link"}</label>
+                    {contentData.type === 'Documents' ? (
+                        <input type="file" onChange={(e) => setDocument(e.target.files![0])}/>
+                    ): (<input 
+                        value={contentData.link}
+                        onChange={(e) => setContentData({...contentData, link:e.target.value})}
+                        className="px-4 py-2 bg-slate-100 border-2 rounded-lg text-lg"
+                        placeholder="x.com"
+                    />)}
                 </div>
                 <Button text="Add Content" className="w-full mt-4" variant="primary" onClick={handlerFn} isDisabled={loading ? true : false}/>
             </div>

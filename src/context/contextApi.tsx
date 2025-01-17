@@ -23,8 +23,9 @@ export function ContextProvider({children}:any){
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredData, setFilteredData] = useState([])
     const inputRef = useRef();
+    const [document, setDocument] = useState("");
     return(
-        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing, hash, setHash, sharedData, setSharedData, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef}}>
+        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing, hash, setHash, sharedData, setSharedData, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef, document, setDocument}}>
             {children}
         </CreateContext.Provider>
     )
