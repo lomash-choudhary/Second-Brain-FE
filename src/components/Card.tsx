@@ -4,7 +4,9 @@ import { cleanYoutubeUrl } from "../helpers/clearYoutubeUrl";
 import { FaYoutube } from "react-icons/fa";
 import { BsTwitterX } from "react-icons/bs";
 import { IoDocumentSharp } from "react-icons/io5";
+import { PiImageSquareFill } from "react-icons/pi";
 import { ImLink } from "react-icons/im";
+import { RiVideoLine } from "react-icons/ri";
 import { useContext } from "react";
 import { CreateContext } from "../context/contextApi";
 
@@ -44,6 +46,12 @@ export interface cardInputInterface {
                 else if(type === 'Documents'){
                     return <IoDocumentSharp />
                 }
+                else if(type === 'Images'){
+                  return <PiImageSquareFill />
+                }
+                else if(type === 'Videos'){
+                  return <RiVideoLine />
+                }
                 else{
                     return <ImLink />
                 }
@@ -80,6 +88,20 @@ export interface cardInputInterface {
             <blockquote className="twitter-tweet">
               <a href={link.replace("x.com", "twitter.com")}></a> 
             </blockquote>
+          )}
+
+          {type === "Images" && (
+            <img src={link} alt="Cloudinary Image" className="max-w-full h-auto rounded-lg" />
+          )}
+
+          {type === "Videos" && (
+            <video controls className="max-w-full rounded-lg">
+              <source src={link} type="video/mp4" />
+            </video>
+          )}
+
+          {type === "Documents" && (
+            <iframe src={link} className="max-w-full h-auto rounded-lg" />
           )}
         </div>
       </div>

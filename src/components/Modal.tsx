@@ -9,18 +9,28 @@ export default function Modal () {
     const {loading, setLoading, setError, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, document, setDocument}:any = useContext(CreateContext)
     const formData = new FormData();
     formData.append('uploadImage', document)
+    formData.append("title", contentData.title)
+    formData.append("type", contentData.type)
 
     const handlerFn = async () => {
         const toastId = toast.loading(`${isEditing ? "Updating the Content":"Adding Content"}`);
         let response;
+        const token = localStorage.getItem("userAuthToken");
         try{
             console.log(contentData)
-            if(contentData.type === 'Documents'){
-                response = await axios.post(`http://localhost:3000/api/v1/upload`, formData)
+
+            if(contentData.type === 'Documents' || contentData.type === 'Images' || contentData.type === 'Videos'){
+                response = await axios.post(`http://localhost:3000/api/v1/upload`, formData,
+                    {
+                        headers:{
+                            Authorization: token ? token : ""
+                        }
+                    }
+
+                )
                 console.log(response);
             }
             else{
-            const token = localStorage.getItem("userAuthToken");
             setLoading(true)
             if(isEditing){
                 response = await axios.put(`http://localhost:3000/api/v1/content/${contentData._id}`,
@@ -105,10 +115,12 @@ export default function Modal () {
                         <option value={"Youtube"}>Youtube</option>
                         <option value={"X"}>X</option>
                         <option value={"Documents"}>Documents</option>
+                        <option value={"Videos"}>Videos</option>
+                        <option value={"Images"}>Images</option>
                         <option value={"Links"}>Other Links</option>
                     </select>
-                    <label className="font-semibold text-xl">{contentData.type === 'Documents' ? "Upload Document": "Link"}</label>
-                    {contentData.type === 'Documents' ? (
+                    <label className="font-semibold text-xl">{contentData.type === 'Documents' || 'Images' || 'Videos' ? "Upload Document": "Link"}</label>
+                    {contentData.type === 'Documents' || 'Images' || 'Videos' ? (
                         <input type="file" onChange={(e) => setDocument(e.target.files![0])}/>
                     ): (<input 
                         value={contentData.link}
