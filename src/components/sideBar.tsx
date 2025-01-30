@@ -2,10 +2,11 @@ import { useContext } from "react";
 import { FaBrain } from "react-icons/fa";
 import { CreateContext } from "../context/contextApi";
 import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
-import { RiResetLeftFill, RiTwitterXFill } from "react-icons/ri";
+import { RiResetLeftFill, RiTwitterXFill, RiVideoLine } from "react-icons/ri";
 import { CgFileDocument, CgYoutube } from "react-icons/cg";
 import { IoIosLink } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { PiImageSquareFill } from "react-icons/pi";
 
 
 interface SidebarProps{
@@ -36,6 +37,14 @@ export function SideBar({ onClick }:SidebarProps){
                 <div className="flex gap-2 items-center justify-center hover:rounded-lg hover:bg-gray-200 transition-all duration-300 cursor-pointer py-2 px-2" onClick={() => onClick?.("Documents")}>
                     <CgFileDocument />
                     Documents
+                </div>
+                <div className="flex gap-2 items-center justify-center hover:rounded-lg hover:bg-gray-200 transition-all duration-300 cursor-pointer py-2 px-2" onClick={() => onClick?.("Videos")}>
+                    <PiImageSquareFill />
+                    Videos
+                </div>
+                <div className="flex gap-2 items-center justify-center hover:rounded-lg hover:bg-gray-200 transition-all duration-300 cursor-pointer py-2 px-2" onClick={() => onClick?.("Images")}>
+                    <RiVideoLine />
+                    Images
                 </div>
                 <div className="flex gap-2 items-center justify-center hover:rounded-lg hover:bg-gray-200 transition-all duration-300 cursor-pointer py-2 px-2" onClick={() => onClick?.("Links")}>
                     <IoIosLink />
