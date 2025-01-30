@@ -13,7 +13,7 @@ import { CiSearch } from "react-icons/ci";
 
 export function DashBoard() {
   const { shareId } = useParams()
-  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing, setContentData, isSharing, setIsSharing, setHash, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef}: any = useContext(CreateContext);
+  const { isOpen, setIsOpen, data, setData,loading, setLoading, setError, isModalOpen, setIsModalOpen, setIsEditing,contentData, setContentData, isSharing, setIsSharing, setHash, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef}: any = useContext(CreateContext);
   const isSharedBrain = !!shareId
     useEffect(() => {
         const toastId = toast.loading(isSharedBrain ? 'Loading Shared Brain Data': 'Loading the Users Data')
@@ -72,7 +72,7 @@ export function DashBoard() {
       try{
         setLoading(true);
         const token = localStorage.getItem("userAuthToken")
-        await axios.delete(`http://localhost:3000/api/v1/content/${_id}`,{
+        await axios.delete(contentData.type === "Documents" || "Images" || "Videos" ? `http://localhost:3000/api/v1/deleteUploads/${_id}`: `http://localhost:3000/api/v1/content/${_id}` ,{
           headers:{
             Authorization: token ? token : ""
           }
