@@ -21,11 +21,11 @@ export function DashBoard() {
         try {
             setLoading(true);
             if(isSharedBrain){
-              const response = await axios.get(`http://localhost:3000/api/v1/brain/${shareId}`)
+              const response = await axios.get(`http://localhost:3000/api/v1/content/${shareId}`)
               // if(!response){
               //   toast.error('This brain does not exists publicaly',{id:toastId});
               // }
-              setData(response.data.content)
+              setData(response.data.userContentData)
             }
             else{
               const response = await axios.get("http://localhost:3000/api/v1/content",{
@@ -72,7 +72,7 @@ export function DashBoard() {
       try{
         setLoading(true);
         const token = localStorage.getItem("userAuthToken")
-        await axios.delete(contentData.type === "Documents" || "Images" || "Videos" ? `http://localhost:3000/api/v1/deleteUploads/${_id}`: `http://localhost:3000/api/v1/content/${_id}` ,{
+        await axios.delete(["Documents","Images","Videos"].includes(contentData.type) ? `http://localhost:3000/api/v1/deleteUploads/${_id}/${shareId}`: `http://localhost:3000/api/v1/content/${_id}/${shareId}` ,{
           headers:{
             Authorization: token ? token : ""
           }
@@ -156,7 +156,7 @@ export function DashBoard() {
         }`}
       >
         
-        {isModalOpen && <Modal />}
+        {isModalOpen && <Modal shareId={shareId!}/>}
         {isOpen ? (
           <SideBar onClick={filterAccordingToPlatform}/>
         ) : (
