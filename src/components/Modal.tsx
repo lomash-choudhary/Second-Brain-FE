@@ -19,10 +19,6 @@ export default function Modal({ shareId }: { shareId: String }) {
     document,
     setDocument,
   }: any = useContext(CreateContext);
-  const formData = new FormData();
-  formData.append("uploadImage", document);
-  formData.append("title", contentData.title);
-  formData.append("type", contentData.type);
 
   const handlerFn = async () => {
     const toastId = toast.loading(
@@ -30,29 +26,38 @@ export default function Modal({ shareId }: { shareId: String }) {
     );
     let response;
     const token = localStorage.getItem("userAuthToken");
+
     try {
-      //if the content data is of type documents, images,videos then this if block will run
+      if (!contentData.title || !contentData.type) {
+        throw new Error("Please fill in required fields");
+      }
+
       if (isEditing) {
         if (["Documents", "Images", "Videos"].includes(contentData.type)) {
+          // If a new file is selected, update both file and metadata
           if (document) {
             const formData = new FormData();
             formData.append("uploadImage", document);
             formData.append("title", contentData.title);
             formData.append("type", contentData.type);
+
             response = await axios.patch(
-              `http://localhost:3000/api/v1/uploads/${contentData._id}/${shareId}`,
+              shareId?`http://localhost:3000/api/v1/uploads/${contentData._id}/${shareId}` : `http://localhost:3000/api/v1/uploads/${contentData._id}`,
               formData,
               {
                 headers: {
                   Authorization: token ? token : undefined,
+                  "Content-Type": "multipart/form-data",
                 },
               }
             );
           } else {
+            // If no new file, just update the metadata using content endpoint
             response = await axios.patch(
-              `http://localhost:3000/api/v1/uploads/${contentData._id}/${shareId}`,
+              shareId?`http://localhost:3000/api/v1/content/${contentData._id}/${shareId}`:`http://localhost:3000/api/v1/content/${contentData._id}`,
               {
                 title: contentData.title,
+                type: contentData.type,
               },
               {
                 headers: {
@@ -62,9 +67,9 @@ export default function Modal({ shareId }: { shareId: String }) {
             );
           }
         } else {
-          // If editing non-file types (Links, YouTube, etc.), update normally
+          // For non-file content types
           response = await axios.patch(
-            `http://localhost:3000/api/v1/content/${contentData._id}/${shareId}`,
+            shareId?`http://localhost:3000/api/v1/content/${contentData._id}/${shareId}`:`http://localhost:3000/api/v1/content/${contentData._id}`,
             {
               title: contentData.title,
               link: contentData.link,
@@ -78,24 +83,31 @@ export default function Modal({ shareId }: { shareId: String }) {
           );
         }
       } else {
+        // Creating new content
         if (["Documents", "Images", "Videos"].includes(contentData.type)) {
+          if (!document) {
+            throw new Error("Please select a file to upload");
+          }
+
           const formData = new FormData();
           formData.append("uploadImage", document);
           formData.append("title", contentData.title);
           formData.append("type", contentData.type);
 
           response = await axios.post(
-            `http://localhost:3000/api/v1/upload/${shareId}`,
+            shareId?`http://localhost:3000/api/v1/upload/${shareId}`:`http://localhost:3000/api/v1/upload`,
             formData,
             {
               headers: {
                 Authorization: token ? token : undefined,
+                "Content-Type": "multipart/form-data",
               },
             }
           );
         } else {
+          // For non-file content types
           response = await axios.post(
-            `http://localhost:3000/api/v1/content/${shareId}`,
+            shareId?`http://localhost:3000/api/v1/content/${shareId}`:`http://localhost:3000/api/v1/content`,
             {
               title: contentData.title,
               link: contentData.link,
@@ -109,12 +121,8 @@ export default function Modal({ shareId }: { shareId: String }) {
           );
         }
       }
-      console.log(response);
-      setContentData({
-        title: "",
-        link: "",
-        type: "",
-      });
+
+      setContentData({ title: "", link: "", type: "" });
       setDocument(null);
       setLoading(false);
       toast.success(
@@ -128,8 +136,9 @@ export default function Modal({ shareId }: { shareId: String }) {
       setIsEditing(false);
       window.location.reload();
     } catch (err: any) {
-      setError(err.response.data);
-      toast.error(err.response.data, { id: toastId });
+      const errorMessage = err.response?.data || err.message;
+      setError(errorMessage);
+      toast.error(errorMessage, { id: toastId });
     } finally {
       setLoading(false);
       setError("");
