@@ -1,7 +1,7 @@
 import { createContext, useRef, useState } from "react";
 
 export function ContextProvider({children}:any){
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
