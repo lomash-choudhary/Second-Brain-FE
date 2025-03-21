@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 export default function SignUpAndLogin() {
   const navigate = useNavigate();
   const currentPathName = useLocation();
-  const { loading, setLoading, userData, setUserData, error, setError }: any =
+  const { loading, setLoading, userData, setUserData, setError }: any =
     useContext(CreateContext);
 
   const loginFn = async () => {

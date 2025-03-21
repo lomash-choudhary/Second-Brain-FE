@@ -19,7 +19,7 @@ export function SideBar({ onClick }:SidebarProps){
     return(
         <div className="fixed bg-white h-screen top-0 left-0 w-68 border-r-2 border-slate-200 pr-2">
             <div className="flex justify-end text-2xl" onClick={() => setIsOpen(!isOpen)}>
-                {isOpen && <TbLayoutSidebarRightExpandFilled className="hover:cursor-pointer"/> }
+                {isOpen && <TbLayoutSidebarRightExpandFilled className="text-indigo-600 cursor-pointer hover:text-indigo-800 transition-colors"/> }
             </div>
             <div className="flex gap-4 items-center text-3xl px-4 py-1 mb-4 hover:cursor-pointer text-[#5046e4]" onClick={() => navigate('/dashboard')}>
                 <FaBrain />
