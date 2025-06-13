@@ -49,12 +49,18 @@ export function DashBoard() {
       try {
         setLoading(true);
         const response = isSharedBrain
-          ? await axios.get(`http://localhost:3000/api/v1/content/${shareId}`)
+          ? await axios.get(
+              `http://localhost:3000/api/v1/brain/${shareId}`
+            )
           : await axios.get("http://localhost:3000/api/v1/content", {
               headers: { authorization: localStorage.getItem("userAuthToken") },
             });
 
-        setData(response.data.userContentData);
+        if (isSharedBrain) {
+          setData(response.data.content);
+        } else {
+          setData(response.data.userContentData);
+        }
         toast.success("Data Loaded Successfully", { id: toastId });
       } catch (error: any) {
         setError(error.message);
@@ -89,16 +95,29 @@ export function DashBoard() {
     try {
       setLoading(true);
       const token = localStorage.getItem("userAuthToken");
-      await axios.delete(
-        ["Documents", "Images", "Videos"].includes(contentData.type)
+
+      // Create the appropriate URL based on content type and whether we're in a shared brain
+      let deleteUrl;
+      if (["Documents", "Images", "Videos"].includes(contentData.type)) {
+        deleteUrl = isSharedBrain
           ? `http://localhost:3000/api/v1/deleteUploads/${_id}/${shareId}`
-          : `http://localhost:3000/api/v1/content/${_id}/${shareId}`,
-        { headers: { Authorization: token ? token : "" } }
-      );
+          : `http://localhost:3000/api/v1/deleteUploads/${_id}`;
+      } else {
+        deleteUrl = isSharedBrain
+          ? `http://localhost:3000/api/v1/content/${_id}/${shareId}`
+          : `http://localhost:3000/api/v1/content/${_id}`;
+      }
+
+      await axios.delete(deleteUrl, {
+        headers: { Authorization: token ? token : "" },
+      });
+
       toast.success("Content Deleted Successfully", { id: toastId });
       window.location.reload();
     } catch (error: any) {
-      toast.error(error.response.data, { id: toastId });
+      toast.error(error.response?.data || "Error deleting content", {
+        id: toastId,
+      });
     } finally {
       setLoading(false);
     }

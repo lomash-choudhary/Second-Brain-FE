@@ -16,7 +16,7 @@ export default function SignUpAndLogin() {
     const toastId = toast.loading("Logging In");
     try {
       setLoading(true);
-      const response = await axios.post(`http://localhost:3000/api/v1/login`, {
+      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/login`, {
         username: userData.username,
         password: userData.password,
       });
