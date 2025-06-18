@@ -1,0 +1,10 @@
+services:
+  secondbrainfrontend:
+    build:
+      context: ./
+      dockerfile: Docker/DockerFile.fe
+    environment:
+       VITE_APP_BACKEND_URL: ${VITE_APP_BACKEND_URL}
+       
+    ports:
+      - "4173:4173"

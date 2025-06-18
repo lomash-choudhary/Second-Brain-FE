@@ -1,0 +1,35 @@
+FROM oven/bun:1
+
+WORKDIR /app
+
+COPY ./package-lock.json ./package-lock.json
+
+COPY ./bun.lockb ./bun.lockb
+
+COPY ./eslint.config.js ./eslint.config.js
+
+COPY ./index.html ./index.html
+
+COPY ./postcss.config.js ./postcss.config.js
+
+COPY ./README.md ./README.md
+
+COPY ./tailwind.config.js ./tailwind.config.js
+
+COPY ./tsconfig.app.json ./tsconfig.app.json
+
+COPY ./tsconfig.json ./tsconfig.json
+
+COPY ./tsconfig.node.json ./tsconfig.node.json
+
+COPY ./vite.config.ts ./vite.config.ts
+
+COPY ./package.json ./package.json
+
+RUN bun install
+
+COPY . .
+
+EXPOSE 4173
+
+CMD ["bun", "run", "start"]

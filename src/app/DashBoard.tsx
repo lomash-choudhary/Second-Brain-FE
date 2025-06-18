@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import Modal from "../components/Modal";
 import { useParams } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
+import { FaToggleOff, FaToggleOn } from "react-icons/fa";
 
 export function DashBoard() {
   const { shareId } = useParams();
@@ -37,6 +38,8 @@ export function DashBoard() {
     searchQuery,
     setSearchQuery,
     inputRef,
+    toggleButtonValue,
+    setToggleButtonValue,
   }: any = useContext(CreateContext);
 
   const isSharedBrain = !!shareId;
@@ -50,17 +53,23 @@ export function DashBoard() {
         setLoading(true);
         const response = isSharedBrain
           ? await axios.get(
-              `http://localhost:3000/api/v1/brain/${shareId}`
+              `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/brain/${shareId}`
             )
-          : await axios.get("http://localhost:3000/api/v1/content", {
-              headers: { authorization: localStorage.getItem("userAuthToken") },
-            });
+          : await axios.get(
+              `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content`,
+              {
+                headers: {
+                  authorization: localStorage.getItem("userAuthToken"),
+                },
+              }
+            );
 
         if (isSharedBrain) {
           setData(response.data.content);
         } else {
           setData(response.data.userContentData);
         }
+
         toast.success("Data Loaded Successfully", { id: toastId });
       } catch (error: any) {
         setError(error.message);
@@ -71,6 +80,34 @@ export function DashBoard() {
     };
     datacall();
   }, [shareId, isSharedBrain]);
+
+  {
+    isSharedBrain
+      ? useEffect(() => {
+          const toggleDataFn = async () => {
+            try {
+              setLoading(true);
+              const toggleResponse = await axios.get(
+                `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/toggleValue`,
+                {
+                  headers: {
+                    Authorization: localStorage.getItem("userAuthToken"),
+                  },
+                }
+              );
+              console.log(toggleResponse.data);
+              setToggleButtonValue(toggleResponse.data);
+              toast.success("Editable Data loaded successfully");
+            } catch (error) {
+              toast.error(`Error occured while loading the editable opretion`);
+            } finally{
+              setLoading(false);
+            }
+          };
+          toggleDataFn();
+        }, [])
+      : "";
+  }
 
   useEffect(() => {
     let sharingState = localStorage.getItem("sharing");
@@ -100,12 +137,18 @@ export function DashBoard() {
       let deleteUrl;
       if (["Documents", "Images", "Videos"].includes(contentData.type)) {
         deleteUrl = isSharedBrain
-          ? `http://localhost:3000/api/v1/deleteUploads/${_id}/${shareId}`
-          : `http://localhost:3000/api/v1/deleteUploads/${_id}`;
+          ? `${
+              import.meta.env.VITE_APP_BACKEND_URL
+            }/api/v1/deleteUploads/${_id}/${shareId}`
+          : `${
+              import.meta.env.VITE_APP_BACKEND_URL
+            }/api/v1/deleteUploads/${_id}`;
       } else {
         deleteUrl = isSharedBrain
-          ? `http://localhost:3000/api/v1/content/${_id}/${shareId}`
-          : `http://localhost:3000/api/v1/content/${_id}`;
+          ? `${
+              import.meta.env.VITE_APP_BACKEND_URL
+            }/api/v1/content/${_id}/${shareId}`
+          : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content/${_id}`;
       }
 
       await axios.delete(deleteUrl, {
@@ -160,7 +203,7 @@ export function DashBoard() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:3000/api/v1/brain/share",
+        `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/brain/share`,
         { share: !isSharing },
         { headers: { Authorization: token ? token : "" } }
       );
@@ -198,6 +241,34 @@ export function DashBoard() {
   const focusOnInputBox = () => {
     inputRef.current?.focus();
   };
+
+  // editable button toggler function
+  const toggleEditableButton = async ({ type }:{ type:boolean }) => {
+    setLoading(true);
+    const toastId = toast.loading(`${type === true ? "Enabling Editing" : "Disabling Editing"}`)
+    try {
+      const response = await axios.patch(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/toggleEditButton`,
+      {
+        toggleValue: type
+      },
+      {
+        headers:{
+          Authorization: localStorage.getItem("userAuthToken")
+        }
+      }
+      )
+      console.log(response.data);
+      setToggleButtonValue(type);
+      setLoading(false)
+      toast.success(`${type === true ? "Editing Enabled" : "Editing Disabled"}`, {id:toastId})
+    } catch (error) {
+      toast.error(`Error occured while toggling the editing menu`, {id:toastId})
+      console.log(error);
+      setLoading(false)
+    } finally{
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -270,6 +341,20 @@ export function DashBoard() {
                   {filteredData.length} items •{" "}
                   {isSharedBrain ? "Shared Brain" : "Personal Brain"}
                 </p>
+              </div>
+
+              <div className="">
+                {!isSharedBrain && (
+                  <div>
+                    {isSharing ? (
+                      <div >
+                        {toggleButtonValue ? <FaToggleOn onClick={() => toggleEditableButton({type:false})}/> : <FaToggleOff onClick={() => toggleEditableButton({type: true})}/>}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">

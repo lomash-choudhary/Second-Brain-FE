@@ -24,6 +24,7 @@ export default function Modal({ shareId }: { shareId: String }) {
     const toastId = toast.loading(
       `${isEditing ? "Updating the Content" : "Adding Content"}`
     );
+    // @ts-ignore
     let response;
     const token = localStorage.getItem("userAuthToken");
 
@@ -42,7 +43,13 @@ export default function Modal({ shareId }: { shareId: String }) {
             formData.append("type", contentData.type);
 
             response = await axios.patch(
-              shareId?`http://localhost:3000/api/v1/uploads/${contentData._id}/${shareId}` : `http://localhost:3000/api/v1/uploads/${contentData._id}`,
+              shareId
+                ? `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/uploads/${
+                    contentData._id
+                  }/${shareId}`
+                : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/uploads/${
+                    contentData._id
+                  }`,
               formData,
               {
                 headers: {
@@ -54,7 +61,13 @@ export default function Modal({ shareId }: { shareId: String }) {
           } else {
             // If no new file, just update the metadata using content endpoint
             response = await axios.patch(
-              shareId?`http://localhost:3000/api/v1/content/${contentData._id}/${shareId}`:`http://localhost:3000/api/v1/content/${contentData._id}`,
+              shareId
+                ? `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content/${
+                    contentData._id
+                  }/${shareId}`
+                : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content/${
+                    contentData._id
+                  }`,
               {
                 title: contentData.title,
                 type: contentData.type,
@@ -69,7 +82,13 @@ export default function Modal({ shareId }: { shareId: String }) {
         } else {
           // For non-file content types
           response = await axios.patch(
-            shareId?`http://localhost:3000/api/v1/content/${contentData._id}/${shareId}`:`http://localhost:3000/api/v1/content/${contentData._id}`,
+            shareId
+              ? `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content/${
+                  contentData._id
+                }/${shareId}`
+              : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content/${
+                  contentData._id
+                }`,
             {
               title: contentData.title,
               link: contentData.link,
@@ -95,7 +114,11 @@ export default function Modal({ shareId }: { shareId: String }) {
           formData.append("type", contentData.type);
 
           response = await axios.post(
-            shareId?`http://localhost:3000/api/v1/upload/${shareId}`:`http://localhost:3000/api/v1/upload`,
+            shareId
+              ? `${
+                  import.meta.env.VITE_APP_BACKEND_URL
+                }/api/v1/upload/${shareId}`
+              : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/upload`,
             formData,
             {
               headers: {
@@ -107,7 +130,11 @@ export default function Modal({ shareId }: { shareId: String }) {
         } else {
           // For non-file content types
           response = await axios.post(
-            shareId?`http://localhost:3000/api/v1/content/${shareId}`:`http://localhost:3000/api/v1/content`,
+            shareId
+              ? `${
+                  import.meta.env.VITE_APP_BACKEND_URL
+                }/api/v1/content/${shareId}`
+              : `${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/content`,
             {
               title: contentData.title,
               link: contentData.link,

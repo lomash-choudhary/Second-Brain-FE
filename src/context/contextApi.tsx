@@ -5,6 +5,7 @@ export function ContextProvider({children}:any){
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const [toggleButtonValue, setToggleButtonValue] = useState(false);
     const [userData, setUserData] = useState({
         username:"",
         password:""
@@ -25,7 +26,7 @@ export function ContextProvider({children}:any){
     const inputRef = useRef();
     const [document, setDocument] = useState("");
     return(
-        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing, hash, setHash, sharedData, setSharedData, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef, document, setDocument}}>
+        <CreateContext.Provider value={{isOpen, setIsOpen, setData, data, loading, setLoading,error, setError, userData, setUserData, isModalOpen, setIsModalOpen, contentData, setContentData, isEditing, setIsEditing, isSharing, setIsSharing, hash, setHash, sharedData, setSharedData, filteredData, setFilteredData, searchQuery, setSearchQuery, inputRef, document, setDocument, toggleButtonValue, setToggleButtonValue}}>
             {children}
         </CreateContext.Provider>
     )
