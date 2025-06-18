@@ -32,7 +32,7 @@ jobs:
                touch ~/.ssh/know_hosts
                echo "${{ secrets.KNOW_HOSTS }}" &> ~/.ssh/know_hosts
                chmod 700 ~/ssh_key
-               ssh -o strictHostKeyChecking=no -i second-brain-backend_key_azure_root_user.pem rootUserAzure@${{secrets.VM_IP}} << EOF
+               ssh -o strictHostKeyChecking=no -i ~/ssh_key rootUserAzure@${{secrets.VM_IP}} << EOF
                sudo docker pull lomashchoudhary/second-brain-fe:${{ github.sha }}
                sudo docker stop second-brain-fe || true
                sudo docker rm second-brain-fe || true
